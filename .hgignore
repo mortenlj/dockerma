@@ -1,0 +1,7 @@
+.tox
+dockerma.egg-info
+build
+__pycache__
+.eggs
+.pytest_cache/
+.coverage
