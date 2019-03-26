@@ -1,18 +1,4 @@
-from datetime import datetime
-from subprocess import check_output, CalledProcessError
-from warnings import warn
-
 from setuptools import setup, find_packages
-
-
-def version():
-    date_string = datetime.now().strftime("1.%Y%m%d.%H%M%S")
-    try:
-        git_sha = check_output(["git", "describe", "--always", "--dirty=dirty", "--match=NOTHING"]).strip().decode()
-        return "{}+{}".format(date_string, git_sha)
-    except (CalledProcessError, OSError) as e:
-        warn("Error calling git: {}".format(e))
-    return date_string
 
 
 GENERIC_REQ = [
@@ -32,7 +18,7 @@ CI_REQ = [
 setup(
     name="dockerma",
     url="https://bitbucket.org/mortenlj/dockerma",
-    version=version(),
+    use_scm_version=True,
     packages=find_packages(exclude=("tests",)),
     zip_safe=False,
     install_requires=GENERIC_REQ,
