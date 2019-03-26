@@ -1,0 +1,22 @@
+image: python:3.5.1
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - pip
+        script: # Modify the commands below to build your repository.
+          - pip install .[ci]
+          - tox
+          - python setup.py bdist_wheel sdist
+    - step:
+        name: Deploy to PyPI
+        deployment: production
+        trigger: manual
+        script:
+          - echo "Deploying to PyPI"
+          - pipe: atlassian/pypi-publish:0.2.3
+            variables:
+              PYPI_USERNAME: $PYPI_USERNAME
+              PYPI_PASSWORD: $PYPI_PASSWORD
+              DISTRIBUTIONS: 'sdist bdist_wheel'
