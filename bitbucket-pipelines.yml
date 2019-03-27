@@ -5,8 +5,9 @@ pipelines:
     - step:
         caches:
           - pip
-        script: # Modify the commands below to build your repository.
-          - pip install --upgrade pip
+        script:
+          - apt-get -y -qq update
+          - apt-get -y -qq install mercurial
           - pip install .[ci]
           - tox
           - python setup.py bdist_wheel sdist

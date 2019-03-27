@@ -21,7 +21,7 @@ setup(
     packages=find_packages(exclude=("tests",)),
     zip_safe=False,
     install_requires=GENERIC_REQ,
-    setup_requires=['pytest-runner', 'wheel', 'setuptools_scm', 'mercurial'],
+    setup_requires=['pytest-runner', 'wheel', 'setuptools_scm'],
     extras_require={
         "dev": TESTS_REQ + CI_REQ,
         "ci": CI_REQ,
