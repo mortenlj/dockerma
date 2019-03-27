@@ -6,7 +6,7 @@ pipelines:
         caches:
           - pip
         script:
-          - apt-get -y -qq update
+          - apt-get -y -qq update || true
           - apt-get -y -qq install mercurial
           - pip install .[ci]
           - tox
