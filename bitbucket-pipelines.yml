@@ -12,11 +12,24 @@ pipelines:
           - tox
           - python setup.py bdist_wheel sdist
     - step:
+        name: Deploy to TestPyPI
+        deployment: test
+        script:
+          - apt-get -y -qq update || true
+          - apt-get -y -qq install mercurial
+          - pipe: atlassian/pypi-publish:0.2.3
+            variables:
+              PYPI_USERNAME: $PYPI_USERNAME
+              PYPI_PASSWORD: $PYPI_PASSWORD
+              DISTRIBUTIONS: 'sdist bdist_wheel'
+              REPOSITORY: https://test.pypi.org/legacy/
+    - step:
         name: Deploy to PyPI
         deployment: production
         trigger: manual
         script:
-          - echo "Deploying to PyPI"
+          - apt-get -y -qq update || true
+          - apt-get -y -qq install mercurial
           - pipe: atlassian/pypi-publish:0.2.3
             variables:
               PYPI_USERNAME: $PYPI_USERNAME
