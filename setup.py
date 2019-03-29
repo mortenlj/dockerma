@@ -12,6 +12,7 @@ TESTS_REQ = [
 
 CI_REQ = [
     'tox',
+    'twine',
 ]
 
 setup(
