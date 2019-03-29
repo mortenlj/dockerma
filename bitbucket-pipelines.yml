@@ -11,7 +11,8 @@ definitions:
           - pip install .[ci]
           - tox -e py$((34+${BITBUCKET_PARALLEL_STEP}))
           - python setup.py bdist_wheel sdist
-        artifacts: dist/*
+        artifacts:
+          - dist/*
     - step: &deploy
         script:
           - apt-get -y -qq update || true
