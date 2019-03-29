@@ -25,9 +25,6 @@ pipelines:
     - parallel:
       - step:
           <<: *run-tests
-          image: python:3.4
-      - step:
-          <<: *run-tests
           image: python:3.5
       - step:
           <<: *run-tests
