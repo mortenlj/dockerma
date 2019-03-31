@@ -27,14 +27,11 @@ definitions:
 pipelines:
   default:
     - parallel: *build
-  tags:
-    "*.*.*":
-      - parallel: *build
-      - step:
-          name: Deploy to PyPI
-          deployment: production
-          script:
-            - apt-get -y -qq update || true
-            - apt-get -y -qq install mercurial
-            - pip install .[ci]
-            - twine upload --verbose --repository-url "${PYPI_REPOSITORY}" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWORD}" --disable-progress-bar dist/*
+    - step:
+        name: Deploy to PyPI
+        deployment: production
+        script:
+          - apt-get -y -qq update || true
+          - apt-get -y -qq install mercurial
+          - pip install .[ci]
+          - ./scripts/deploy.sh
