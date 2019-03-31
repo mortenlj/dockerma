@@ -27,7 +27,7 @@ definitions:
 pipelines:
   default:
     - parallel: *build
-  bookmarks:
+  tags:
     "*.*.*":
       - parallel: *build
       - step:
