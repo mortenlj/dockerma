@@ -41,7 +41,7 @@ def _generate_changelog():
                                      universal_newlines=True)
     for idx, line in enumerate(output.splitlines()):
         if idx != drop_index:
-            node, desc = line.split("\t", maxsplit=1)
+            node, desc = line.split("\t", 1)
             links[node] = ".. _{node}: https://bitbucket.org/mortenlj/dockerma/commits/{node}".format(node=node)
             for match in ISSUE_NUMBER.finditer(desc):
                 issue_number = match.group(1)
