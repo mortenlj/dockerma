@@ -13,8 +13,15 @@ definitions:
           - python setup.py bdist_wheel sdist
     - parallel: &build
       - step:
-          <<: *run-tests
           image: python:2.7
+          caches:
+            - pip
+          script:
+            - apt-get -y -qq update || true
+            - apt-get -y -qq install mercurial
+            - pip install .[ci]
+            - tox -e py27
+            - python setup.py bdist_wheel sdist
       - step:
           <<: *run-tests
           image: python:3.5
