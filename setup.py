@@ -24,14 +24,23 @@ def _generate_changelog():
     output = subprocess.check_output(["hg", "parent", "--template", "{latesttag}\t{latesttagdistance}"],
                                      universal_newlines=True)
     tag, distance = output.split("\t")
-    limit = int(distance) - 1
-    if limit > 0:
+    limit = int(distance)
+    if limit > 1:
         header = "Changes since {}".format(tag)
-        changelog = [header, "-" * (len(header)), ""]
-        links = {}
-        output = subprocess.check_output(["hg", "log", "-l", str(limit), "--template", "{node|short}\t{desc}\n"],
+        drop_index = limit-1
+    else:
+        header = "New changes in {}".format(tag)
+        output = subprocess.check_output(["hg", "parent", "--template", "{latesttag}\t{latesttagdistance}", "-r", tag],
                                          universal_newlines=True)
-        for line in output.splitlines():
+        previous_tag, previous_distance = output.split("\t")
+        limit = int(distance) + int(previous_distance)
+        drop_index = 0
+    changelog = [header, "-" * (len(header)), ""]
+    links = {}
+    output = subprocess.check_output(["hg", "log", "-l", str(limit), "--template", "{node|short}\t{desc|firstline}\n"],
+                                     universal_newlines=True)
+    for idx, line in enumerate(output.splitlines()):
+        if idx != drop_index:
             node, desc = line.split("\t", maxsplit=1)
             links[node] = ".. _{node}: https://bitbucket.org/mortenlj/dockerma/commits/{node}".format(node=node)
             for match in ISSUE_NUMBER.finditer(desc):
@@ -40,10 +49,9 @@ def _generate_changelog():
                     num=issue_number)
             desc = ISSUE_NUMBER.sub(r"`#\1`_", desc)
             changelog.append("* `{node}`_: {desc}".format(node=node, desc=desc))
-        changelog.append("")
-        changelog.extend(links.values())
-        return "\n".join(changelog)
-    return ""
+    changelog.append("")
+    changelog.extend(links.values())
+    return "\n".join(changelog)
 
 
 def _generate_description():
