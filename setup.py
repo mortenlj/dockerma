@@ -59,6 +59,12 @@ def _generate_description():
     return "\n".join(description)
 
 
+def _get_license_name():
+    license = _read("LICENSE")
+    lines = license.splitlines()
+    return lines[0].strip()
+
+
 def _read(filename):
     with open(os.path.join(os.path.dirname(__file__), filename)) as f:
         return f.read()
@@ -83,6 +89,7 @@ setup(
     author_email="mortenjo@ifi.uio.no",
     description="DockerMA facilitates building multi-arch containers with minimal fuss",
     long_description=_generate_description(),
+    license=_get_license_name(),
     url="https://bitbucket.org/mortenlj/dockerma",
     keywords="docker",
     classifiers=[
