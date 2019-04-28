@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
+import os
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
-from pkg_resources import get_distribution, DistributionNotFound
+
+def parse_args(args=None):
+    parser = ArgumentParser(
+        description="DockerMA facilitates building multi-arch containers with minimal fuss",
+        formatter_class=ArgumentDefaultsHelpFormatter
+    )
+    return parser.parse_known_args(args)
 
 
 def main():
-    try:
-        dist = get_distribution("dockerma")
-        description = "{} {}".format(dist.project_name, dist.version)
-    except DistributionNotFound:
-        description = "dockerma <unknown>"
-    print("Hello, this is {}".format(description))
+    options, remaining_args = parse_args()
+    os.execvp("docker", ["docker"] + remaining_args)
