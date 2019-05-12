@@ -5,7 +5,9 @@ from dockerma import parse_args
 
 
 class TestParseArgs(object):
-    def test_ignore_unknown_args(self):
-        unknown_args = ["--bogus", "action", "--dummy"]
-        options, remaining = parse_args(unknown_args)
-        assert remaining == unknown_args
+    def test_capture_build_command(self):
+        args = ["--tls", "build", "--dummy"]
+        options, remaining = parse_args(args)
+        assert remaining == ["--dummy"]
+        assert options.tls is True
+        assert options.command == "build"
