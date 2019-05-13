@@ -29,6 +29,8 @@ def parse_args(args=None):
         action = Builder(action_parser)
         action_parser.set_defaults(action=action)
     options, remaining = parser.parse_known_args(args)
+    if options.command is None:
+        parser.print_help()
     return options, remaining
 
 
