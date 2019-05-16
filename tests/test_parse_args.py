@@ -6,7 +6,7 @@ from dockerma import parse_args
 
 class TestParseArgs(object):
     def test_capture_build_command(self):
-        args = ["--tls", "build", "--dummy"]
+        args = ["--tls", "build", "--dummy", "path"]
         options, remaining = parse_args(args)
         assert remaining == ["--dummy"]
         assert options.tls is True

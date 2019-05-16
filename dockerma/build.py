@@ -52,6 +52,7 @@ class Builder(object):
         parser.add_argument("-f", "--file", help="Name of the Dockerfile", default="Dockerfile")
         parser.add_argument("-t", "--tag", action="append", help="Name and optionally a tag in the 'name:tag' format")
         parser.add_argument("--build-arg", help="Set build-time variables")
+        parser.add_argument("path", help="Docker context", metavar="PATH|URL")
         self._docker = None
         self._options = None
         self._remaining = []
@@ -67,6 +68,8 @@ class Builder(object):
             self._find_arch_bases(image)
             print("Arch bases for {}".format(image))
             pprint(self._base_images[image])
+            if not all(arch in self._base_images[image].keys() for arch in self._archs):
+                print("One or more requested archs are not supported in {}".format(image))
 
     def _parse_dockerfile(self):
         with open(self._options.file) as fobj:
