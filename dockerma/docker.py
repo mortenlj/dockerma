@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
+import logging
 import subprocess
 
-if __name__ == "__main__":
-    pass
+LOG = logging.getLogger(__name__)
 
 
 class Docker(object):
@@ -18,10 +18,13 @@ class Docker(object):
             if getattr(o, bool_option):
                 cmd.append("--{}".format(bool_option))
         for value_option in ("config", "log_level", "tlscacert", "tlscert", "tlskey"):
-            if getattr(o, value_option):
+            value = getattr(o, value_option)
+            if value:
                 cmd.append("--{}".format(value_option.replace("_", "-")))
+                cmd.append(value)
         if o.host:
             for h in o.host:
                 cmd.extend(("--host", h))
         cmd.extend(args)
-        subprocess.check_call(cmd)
+        LOG.debug("Executing command: %r", cmd)
+        return subprocess.check_output(cmd)

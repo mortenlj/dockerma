@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
+
+import logging
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from dockerma.build import Builder
@@ -15,7 +17,8 @@ def parse_args(args=None):
     parser.add_argument("--config", help="Location of client config files")
     parser.add_argument("-D", "--debug", action="store_true", help="Enable debug mode")
     parser.add_argument("-H", "--host", action="append", help="Daemon socket(s) to connect to")
-    parser.add_argument("-l", "--log-level", choices=("debug", "info", "warn", "error", "fatal"), help="Set the logging level")
+    parser.add_argument("-l", "--log-level", choices=("debug", "info", "warn", "error", "fatal"),
+                        help="Set the logging level", default="info")
     parser.add_argument("--tls", action="store_true", help="Use TLS; implied by --tlsverify")
     parser.add_argument("--tlscacert", help="Trust certs signed only by this CA")
     parser.add_argument("--tlscert", help="Path to TLS certificate file")
@@ -36,6 +39,7 @@ def parse_args(args=None):
 
 def main():
     options, remaining_args = parse_args()
+    logging.basicConfig(level=options.log_level.upper())
     docker = Docker(options, remaining_args)
     if options.command == "build":
         options.action(docker, options, remaining_args)
