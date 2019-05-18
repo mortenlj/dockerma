@@ -12,7 +12,7 @@ class TestImage(object):
         ("example", "latest", "example:latest"),
     ))
     def test_ref(self, name, tag, expected):
-        assert Image(name, tag).ref == expected
+        assert Image(None, name, tag).ref == expected
 
     @pytest.mark.parametrize("line,name,tag,alias", (
         ("FROM nginx", "nginx", None, None),
@@ -24,7 +24,7 @@ class TestImage(object):
         ("FROM python:2-alpine3.8 as common", "python", "2-alpine3.8", "common"),
     ))
     def test_from_dockerfile(self, line, name, tag, alias):
-        image = Image.from_dockerfile(line)
+        image = Image.from_dockerfile(None, line)
         assert image.name == name
         assert image.tag == tag
         assert image.alias == alias

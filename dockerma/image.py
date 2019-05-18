@@ -12,18 +12,19 @@ FROM_PATTERN = re.compile(r"FROM\s+(?P<name>[\w./-]+)(:(?P<tag>[\w.-]+))?(\s+(?:
 
 
 class Image(object):
-    def __init__(self, name, tag, alias=None):
+    def __init__(self, docker, name, tag, alias=None):
+        self._docker = docker
         self.name = name
         self.tag = tag
         self.alias = alias
         self._archs = None
 
     @classmethod
-    def from_dockerfile(cls, line):
+    def from_dockerfile(cls, docker, line):
         m = FROM_PATTERN.match(line)
         if m:
             groups = m.groupdict()
-            return cls(groups["name"], groups["tag"], groups["alias"])
+            return cls(docker, groups["name"], groups["tag"], groups["alias"])
         raise ValueError("Unable to parse image reference from line %r" % line)
 
     @property
@@ -35,7 +36,7 @@ class Image(object):
     def _find_arch_bases(self):
         self._archs = {}
         try:
-            output = subprocess.check_output(["docker", "manifest", "inspect", self.ref])
+            output = self._docker.execute("manifest", "inspect", self.ref)
             config = json.loads(output)
             if config["schemaVersion"] != 2 or \
                     config["mediaType"] != "application/vnd.docker.distribution.manifest.list.v2+json":

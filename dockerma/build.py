@@ -56,7 +56,7 @@ class Builder(object):
         with open(self._options.file) as fobj:
             for line in fobj:
                 try:
-                    image = Image.from_dockerfile(line)
+                    image = Image.from_dockerfile(self._docker, line)
                     if image:
                         self._base_images[image] = {}
                 except ValueError:
