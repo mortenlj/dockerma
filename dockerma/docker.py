@@ -12,6 +12,12 @@ class Docker(object):
         self._remaining = remaining
 
     def execute(self, *args):
+        self._execute(args)
+
+    def get_output(self, *args):
+        return self._execute(args, True)
+
+    def _execute(self, args, output=False):
         cmd = ["docker"]
         o = self._options
         for bool_option in ("debug", "tls", "tlsverify"):
@@ -26,5 +32,9 @@ class Docker(object):
             for h in o.host:
                 cmd.extend(("--host", h))
         cmd.extend(args)
-        LOG.debug("Executing command: %r", cmd)
-        return subprocess.check_output(cmd)
+        if output:
+            LOG.debug("Getting output from: %r", cmd)
+            return subprocess.check_output(cmd)
+        else:
+            LOG.debug("Executing command: %r", cmd)
+            subprocess.check_call(cmd)
