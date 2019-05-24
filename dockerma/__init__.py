@@ -40,6 +40,10 @@ def parse_args(args=None):
 def main():
     options, remaining_args = parse_args()
     logging.basicConfig(level=options.log_level.upper())
+    logging.debug("Logging configured")
     docker = Docker(options, remaining_args)
-    if options.command == "build":
-        options.action(docker, options, remaining_args)
+    try:
+        if options.command == "build":
+            options.action(docker, options, remaining_args)
+    except Exception as e:
+        logging.fatal(str(e))

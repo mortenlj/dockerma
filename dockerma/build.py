@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
 import re
-from pprint import pprint
 
 from .image import Image
 
@@ -38,7 +37,8 @@ class Builder(object):
         self._options = None
         self._remaining = []
         self._base_images = {}
-        self._archs = []
+        self._alias_lookup = {}
+        self._archs = set()
 
     def __call__(self, docker, options, remaining_args):
         self._docker = docker
@@ -46,11 +46,11 @@ class Builder(object):
         self._remaining = remaining_args
         self._parse_dockerfile()
         for image in self._base_images.keys():
-            print("Arch bases for {}".format(image))
-            image.get_supported_archs()
-            pprint(image._archs)
-            if not all(arch in image.get_supported_archs() for arch in self._archs):
-                print("One or more requested archs are not supported in {}".format(image))
+            if image.name in self._alias_lookup:
+                continue
+            if not self._archs.issubset(image.get_supported_archs()):
+                missing = self._archs - image.get_supported_archs()
+                raise BuildError("{} does not support requested arch: {}".format(image, ", ".join(missing)))
 
     def _parse_dockerfile(self):
         with open(self._options.file) as fobj:
@@ -59,7 +59,13 @@ class Builder(object):
                     image = Image.from_dockerfile(self._docker, line)
                     if image:
                         self._base_images[image] = {}
+                        if image.alias:
+                            self._alias_lookup[image.alias] = image
                 except ValueError:
                     pass
                 archs = _parse_archs(line)
-                self._archs.extend(archs)
+                self._archs.update(archs)
+
+
+class BuildError(Exception):
+    pass

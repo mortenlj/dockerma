@@ -49,6 +49,7 @@ class Image(object):
                     self._archs[arch] = digest
         except subprocess.CalledProcessError:
             LOG.error("%s doesn't support multi-arch", self)
+        LOG.debug("{} supports {} archs: {}".format(self, len(self._archs), ", ".join(self._archs.keys())))
 
     def get_supported_archs(self):
         if self._archs is None:
