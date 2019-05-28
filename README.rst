@@ -3,6 +3,8 @@ DockerMA - Docker Multi Architecture
 
 DockerMA facilitates building multi-arch containers with minimal fuss.
 
+Using the tools from https://github.com/monsonnl/qemu-wrap-build-files
+
 
 Releasing a new version
 -----------------------
