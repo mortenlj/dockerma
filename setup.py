@@ -5,6 +5,9 @@ import subprocess
 from setuptools import setup, find_packages
 
 GENERIC_REQ = [
+    "appdirs==1.4.3",
+    "ucache==0.1.2",
+    "six",
 ]
 
 TESTS_REQ = [
