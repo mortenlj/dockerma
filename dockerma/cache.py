@@ -3,54 +3,46 @@
 import hashlib
 import logging
 import os
-import shutil
+import pickle
+from collections import namedtuple
+from datetime import datetime, timedelta
 
 import appdirs
+import six
 import time
 from six.moves import zip_longest
-from ucache import Cache, decode_timestamp
 
 LOG = logging.getLogger(__name__)
 
+Entry = namedtuple("Entry", ("timestamp", "data"))
 
-class FileCache(Cache):
-    manual_expire = True
 
+class FileCache(object):
     def __init__(self, name):
         self._cache_dir = os.path.join(appdirs.user_cache_dir("dockerma"), name)
-        super(FileCache, self).__init__()
 
-    def _get(self, key):
+    def get(self, key):
         entry_path = self._get_entry_path(key)
-        return self._get_entry(entry_path)
+        entry = self._get_entry(entry_path)
+        if entry:
+            return entry.data
 
     def _get_entry(self, entry_path):
         if not os.path.exists(entry_path):
             return None
         with open(entry_path, "rb") as fobj:
-            return fobj.read()
+            return pickle.load(fobj)
 
-    def _get_many(self, keys):
-        result = {}
-        for key in keys:
-            value = self._get(key)
-            if value is not None:
-                result[key] = value
-        return result
-
-    def _set(self, key, value, timeout):
+    def set(self, key, value):
+        timestamp = int((datetime.now() + timedelta(days=7)).timestamp())
         entry_path = self._get_entry_path(key)
         dir_path = os.path.dirname(entry_path)
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         with open(entry_path, "wb") as fobj:
-            fobj.write(value)
+            pickle.dump(Entry(timestamp, value), fobj)
 
-    def _set_many(self, data, timeout):
-        for key, value in data.items():
-            self._set(key, value, timeout)
-
-    def _delete(self, key):
+    def delete(self, key):
         entry_path = self._get_entry_path(key)
         self._delete_entry(entry_path)
 
@@ -59,32 +51,25 @@ class FileCache(Cache):
             os.unlink(entry_path)
             directory = os.path.dirname(entry_path)
             while len(directory) > 3 and len(os.listdir(directory)) == 0:
-                os.unlink(directory)
+                os.rmdir(directory)
                 directory = os.path.dirname(directory)
 
-    def _delete_many(self, keys):
-        for key in keys:
-            self._delete(key)
-
-    def _flush(self):
-        shutil.rmtree(self._cache_dir)
-        return True
-
-    def clean_expired(self, ndays=0):
-        timestamp = time.time() - (ndays * 86400)
+    def clean_expired(self):
+        timestamp = time.time()
         n = 0
 
         for root, dirs, files in os.walk(self._cache_dir):
             for fname in files:
                 entry_path = os.path.join(root, fname)
-                value = self._get_entry(entry_path)
-                ts, _ = decode_timestamp(value)
-                if ts <= timestamp:
+                entry = self._get_entry(entry_path)
+                if entry.timestamp <= timestamp:
                     self._delete_entry(entry_path)
                     n += 1
         return n
 
     def _get_entry_path(self, key):
+        if not isinstance(key, six.binary_type):
+            key = key.encode("utf-8")
         entry_key = hashlib.sha256(key).hexdigest()
         args = [iter(entry_key)] * 3
         names = ("".join(z) for z in zip_longest(*args, fillvalue=""))

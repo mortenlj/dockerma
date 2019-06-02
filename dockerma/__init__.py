@@ -4,8 +4,8 @@
 import logging
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
-from dockerma.build import Builder
-from dockerma.docker import Docker
+from .build import Builder
+from .docker import Docker
 
 
 def parse_args(args=None):
