@@ -13,6 +13,7 @@ TESTS_REQ = [
     'pytest-html==1.19.0',
     'pytest-cov==2.6.0',
     'pytest==3.8.2',
+    'mock==3.0.5',
 ]
 
 CI_REQ = [

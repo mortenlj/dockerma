@@ -34,7 +34,8 @@ class FileCache(object):
             return pickle.load(fobj)
 
     def set(self, key, value):
-        timestamp = int((datetime.now() + timedelta(days=7)).timestamp())
+        expires = datetime.now() + timedelta(days=7)
+        timestamp = int(time.mktime(expires.timetuple()))
         entry_path = self._get_entry_path(key)
         dir_path = os.path.dirname(entry_path)
         if not os.path.exists(dir_path):
@@ -55,14 +56,14 @@ class FileCache(object):
                 directory = os.path.dirname(directory)
 
     def clean_expired(self):
-        timestamp = time.time()
+        now = time.time()
         n = 0
 
         for root, dirs, files in os.walk(self._cache_dir):
             for fname in files:
                 entry_path = os.path.join(root, fname)
                 entry = self._get_entry(entry_path)
-                if entry.timestamp <= timestamp:
+                if entry.timestamp <= now:
                     self._delete_entry(entry_path)
                     n += 1
         return n
