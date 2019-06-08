@@ -5,6 +5,9 @@ definitions:
     - step: &run-tests
         caches:
           - pip
+          - docker
+        services:
+          - docker
         script:
           - apt-get -y -qq update || true
           - apt-get -y -qq install mercurial
@@ -16,6 +19,9 @@ definitions:
           image: python:2.7
           caches:
             - pip
+            - docker
+          services:
+            - docker
           script:
             - apt-get -y -qq update || true
             - apt-get -y -qq install mercurial
@@ -47,6 +53,3 @@ pipelines:
           - apt-get -y -qq install mercurial
           - pip install .[ci]
           - ./scripts/deploy.sh
-
-options:
-  docker: true
