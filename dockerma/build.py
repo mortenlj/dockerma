@@ -98,7 +98,7 @@ class Builder(object):
 
     def _build(self, arch):
         LOG.info("Building image for %s", arch)
-        dockerfile = tempfile.NamedTemporaryFile(mode="w+", encoding="utf-8", suffix=".{}".format(arch),
+        dockerfile = tempfile.NamedTemporaryFile(mode="w+", suffix=".{}".format(arch),
                                                  prefix="Dockerfile-", dir=self._work_dir.name, delete=False)
         dockerfile.write("".join(r.render(arch) for r in self._template))
         dockerfile.flush()

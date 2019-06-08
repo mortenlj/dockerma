@@ -34,7 +34,7 @@ class Docker(object):
         cmd.extend(args)
         if output:
             LOG.debug("Getting output from: %r", cmd)
-            return subprocess.check_output(cmd)
+            return subprocess.check_output(cmd, universal_newlines=True)
         else:
             LOG.debug("Executing command: %r", cmd)
             subprocess.check_call(cmd)

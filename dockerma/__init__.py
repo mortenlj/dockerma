@@ -4,6 +4,8 @@
 import logging
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
+import sys
+
 from .build import Builder
 from .docker import Docker
 
@@ -38,6 +40,7 @@ def parse_args(args=None):
 
 
 def main():
+    exit_code = 0
     options, remaining_args = parse_args()
     log_level = options.log_level.upper()
     if options.debug:
@@ -50,3 +53,5 @@ def main():
             options.action(docker, options, remaining_args)
     except Exception as e:
         logging.fatal(str(e), exc_info=options.debug)
+        exit_code = 1
+    sys.exit(exit_code)
