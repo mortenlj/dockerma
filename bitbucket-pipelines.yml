@@ -44,6 +44,11 @@ definitions:
 
 pipelines:
   default:
+    - step:
+        services:
+          - docker
+        script:
+          - docker version
     - parallel: *build
     - step:
         name: Deploy to PyPI
