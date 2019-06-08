@@ -47,3 +47,6 @@ pipelines:
           - apt-get -y -qq install mercurial
           - pip install .[ci]
           - ./scripts/deploy.sh
+
+options:
+  docker: true
