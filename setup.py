@@ -94,12 +94,17 @@ setup(
     long_description=_generate_description(),
     license=_get_license_name(),
     url="https://bitbucket.org/mortenlj/dockerma",
+    project_urls={
+        "Source": "https://bitbucket.org/mortenlj/dockerma/src",
+        "Tracker": "https://bitbucket.org/mortenlj/dockerma/issues"
+    },
     keywords="docker",
     classifiers=[
         "Development Status :: 3 - Alpha",
+        "Environment :: Console",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
+        "Operating System :: POSIX :: Linux",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
@@ -107,5 +112,9 @@ setup(
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Topic :: Software Development",
+        "Topic :: Software Development :: Build Tools",
+        "Topic :: System :: Software Distribution",
+        "Topic :: Utilities",
     ],
 )
