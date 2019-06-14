@@ -41,7 +41,7 @@ class TestBuildE2E(object):
             for version in ("v1.0", "latest"):
                 for arch in ("arm", "arm64", "amd64"):
                     tag = "{}:{}-{}".format(image_name, version, arch)
-                    subprocess.check_output(["docker", "rmi", "--force", tag], stderr=subprocess.STDOUT)
+                    subprocess.check_output(["docker", "image", "rm", "--force", tag], stderr=subprocess.STDOUT)
 
         _clean()
         yield
@@ -55,7 +55,7 @@ class TestBuildE2E(object):
                                "-t", "{}:latest".format(image_name),
                                "-f", dockerfile,
                                "."])
-        output = subprocess.check_output(["docker", "images", image_name], universal_newlines=True)
+        output = subprocess.check_output(["docker", "image", "ls", image_name], universal_newlines=True)
         lines = output.splitlines()
         assert len(lines) == 7
         for version in ("v1.0", "latest"):
