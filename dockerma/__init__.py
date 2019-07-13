@@ -8,6 +8,7 @@ import sys
 
 from .build import Builder
 from .docker import Docker
+from .push import Pusher
 
 
 def parse_args(args=None):
@@ -29,9 +30,9 @@ def parse_args(args=None):
     parser.add_argument("-v", "--version", action="version", version="TODO", help="Print version information and quit")
 
     subparsers = parser.add_subparsers(dest="command")
-    for ActionClass in (Builder,):
+    for ActionClass in (Builder, Pusher):
         action_parser = subparsers.add_parser(ActionClass.name)
-        action = Builder(action_parser)
+        action = ActionClass(action_parser)
         action_parser.set_defaults(action=action)
     options, remaining = parser.parse_known_args(args)
     if options.command is None:
@@ -47,10 +48,9 @@ def main():
         log_level = "DEBUG"
     logging.basicConfig(level=log_level)
     logging.debug("Logging configured")
-    docker = Docker(options, remaining_args)
     try:
-        if options.command == "build":
-            options.action(docker, options, remaining_args)
+        if options.command in ("build", "push"):
+            options.action(Docker(options, remaining_args), options, remaining_args)
     except Exception as e:
         logging.fatal(str(e), exc_info=options.debug)
         exit_code = 1
