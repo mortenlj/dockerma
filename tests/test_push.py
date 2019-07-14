@@ -8,6 +8,8 @@ import pytest
 
 from dockerma import Pusher
 
+REF = "mortenlj/dockerma-test:v1.0"
+
 
 class TestPush(object):
     @pytest.fixture
@@ -20,7 +22,7 @@ class TestPush(object):
 
     @pytest.fixture
     def options(self):
-        return mock.NonCallableMock(ref="mortenlj/dockerma-test:v1.0")
+        return mock.NonCallableMock(ref=REF)
 
     @pytest.fixture
     def pusher(self, parser):
@@ -41,7 +43,7 @@ class TestPush(object):
         docker.get_output.return_value = textwrap.dedent("""\
         REPOSITORY               TAG                 IMAGE ID            CREATED             SIZE
         mortenlj/dockerma-test   latest-arm          c54478b267f4        4 weeks ago         76.9MB
-        mortenlj/dockerma-test   v1.0.1-arm            c54478b267f4        4 weeks ago         76.9MB
+        mortenlj/dockerma-test   v1.0.1-arm          c54478b267f4        4 weeks ago         76.9MB
         mortenlj/dockerma-test   latest-arm64        8f0166413023        4 weeks ago         83.8MB
         mortenlj/dockerma-test   v1.0-arm64          8f0166413023        4 weeks ago         83.8MB
         mortenlj/dockerma-test   latest-amd64        3023c5e47f8c        4 weeks ago         80.1MB
@@ -55,11 +57,19 @@ class TestPush(object):
         ]
 
     def test_push_tags(self, pusher, docker, options):
+        tags = ["mortenlj/dockerma-test:latest-arm", "mortenlj/dockerma-test:latest-arm64"]
         pusher._secondary_init(docker, options, [])
-        with mock.patch.object(pusher, "_find_valid_tags") as m:
-            m.return_value = ["mortenlj/dockerma-test:latest-arm", "mortenlj/dockerma-test:latest-arm64"]
-            pusher._push_tags()
-            assert docker.execute.call_args_list == [
-                mock.call("image", "push", "mortenlj/dockerma-test:latest-arm"),
-                mock.call("image", "push", "mortenlj/dockerma-test:latest-arm64"),
-            ]
+        pusher._push_tags(tags)
+        assert docker.execute.call_args_list == [
+            mock.call("image", "push", "mortenlj/dockerma-test:latest-arm"),
+            mock.call("image", "push", "mortenlj/dockerma-test:latest-arm64"),
+        ]
+
+    def test_create_manifest(self, pusher, docker, options):
+        tags = ["mortenlj/dockerma-test:latest-arm", "mortenlj/dockerma-test:latest-arm64"]
+        pusher._secondary_init(docker, options, [])
+        pusher._create_manifest(tags)
+        assert docker.execute.call_args_list == [
+            mock.call("manifest", "create", REF, *tags),
+            mock.call("manifest", "push", REF)
+        ]

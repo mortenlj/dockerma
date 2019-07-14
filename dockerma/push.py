@@ -25,12 +25,9 @@ class Pusher(object):
 
     def __call__(self, docker, options, remaining_args):
         self._secondary_init(docker, options, remaining_args)
-        self._push_tags()
-
-    def _push_tags(self):
-        tags_to_push = self._find_valid_tags()
-        for tag in tags_to_push:
-            self._docker.execute("image", "push", tag, *self._remaining)
+        tags = self._find_valid_tags()
+        self._push_tags(tags)
+        self._create_manifest(tags)
 
     def _find_valid_tags(self):
         output = self._docker.get_output("image", "ls", self._name)
@@ -40,3 +37,12 @@ class Pusher(object):
             if any(tag == "{}-{}".format(self._tag, arch) for arch in SUPPORTED_ARCHS.keys()):
                 found.append("{}:{}".format(name, tag))
         return found
+
+    def _push_tags(self, tags_to_push):
+        for tag in tags_to_push:
+            self._docker.execute("image", "push", tag, *self._remaining)
+
+    def _create_manifest(self, tags):
+        ref = "{}:{}".format(self._name, self._tag)
+        self._docker.execute("manifest", "create", ref, *tags)
+        self._docker.execute("manifest", "push", ref)
