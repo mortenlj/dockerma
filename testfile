@@ -1,0 +1,13 @@
+# dockerma archs:arm,amd64,arm64:
+FROM redis:5.0.4-alpine3.9 as base
+
+COPY ./README.rst /
+
+FROM base as second
+
+FROM traefik:v1.7.11-alpine as final
+
+COPY --from=base /README.rst /
+
+RUN apk update
+

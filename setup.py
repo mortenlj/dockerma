@@ -33,10 +33,15 @@ def _generate_changelog():
         drop_index = limit-1
     else:
         header = "New changes in {}".format(tag)
-        output = subprocess.check_output(["hg", "parent", "--template", "{latesttag}\t{latesttagdistance}", "-r", tag],
+        output = subprocess.check_output(["hg", "parent", "--template", "{latesttag}\t{latesttagdistance}\n", "-r", tag],
                                          universal_newlines=True)
-        previous_tag, previous_distance = output.split("\t")
-        limit = int(distance) + int(previous_distance)
+        longest_distance = 0
+        for line in output.splitlines():
+            previous_tag, previous_distance = line.split("\t")
+            previous_distance = int(previous_distance)
+            if previous_distance > longest_distance:
+                longest_distance = previous_distance
+        limit = int(distance) + int(longest_distance)
         drop_index = 0
     changelog = [header, "-" * (len(header)), ""]
     links = {}
@@ -45,6 +50,8 @@ def _generate_changelog():
     for idx, line in enumerate(output.splitlines()):
         if idx != drop_index:
             node, desc = line.split("\t", 1)
+            if desc.startswith("Close branch") or desc.startswith("Merged in"):
+                continue
             links[node] = ".. _{node}: https://bitbucket.org/mortenlj/dockerma/commits/{node}".format(node=node)
             for match in ISSUE_NUMBER.finditer(desc):
                 issue_number = match.group(1)
