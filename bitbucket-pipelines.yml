@@ -9,9 +9,7 @@ definitions:
         services:
           - docker
         script:
-          - apt-get -y -qq update || true
-          - apt-get -y -qq install mercurial
-          - pip install .[ci]
+          - ./scripts/prepare.sh
           - tox -e py$((34+${BITBUCKET_PARALLEL_STEP}))
           - python setup.py bdist_wheel sdist
     - parallel: &build
@@ -23,9 +21,7 @@ definitions:
           services:
             - docker
           script:
-            - apt-get -y -qq update || true
-            - apt-get -y -qq install mercurial
-            - pip install .[ci]
+            - ./scripts/prepare.sh
             - tox -e py27
             - python setup.py bdist_wheel sdist
           artifacts:
@@ -44,17 +40,10 @@ definitions:
 
 pipelines:
   default:
-    - step:
-        services:
-          - docker
-        script:
-          - docker version
     - parallel: *build
     - step:
         name: Deploy to PyPI
         deployment: production
         script:
-          - apt-get -y -qq update || true
-          - apt-get -y -qq install mercurial
-          - pip install .[ci]
+          - ./scripts/prepare.sh
           - ./scripts/deploy.sh
