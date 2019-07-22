@@ -44,6 +44,11 @@ pipelines:
     - step:
         name: Deploy to PyPI
         deployment: production
+        caches:
+          - pip
+          - docker
+        services:
+          - docker
         script:
           - ./scripts/prepare.sh
           - ./scripts/deploy.sh
