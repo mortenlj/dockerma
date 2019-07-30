@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+# shellcheck disable=SC2046
 set $(hg parent --template "{latesttag} {latesttagdistance}\n")
 export TAG=${1}
 export DISTANCE=${2}

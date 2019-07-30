@@ -43,7 +43,7 @@ current architecture, you will now simply replace ``docker`` with ``dockerma``::
 
 Similary, where you used ``docker push -t myapp:latest``, you now use ``dockerma``::
 
-    dockerma push -t myapp:latest
+    dockerma push myapp:latest
 
 What are the requirements?
 --------------------------
@@ -51,6 +51,8 @@ What are the requirements?
 * You need to enable experimental features in ``docker``. This can be done by setting ``DOCKER_CLI_EXPERIMENTAL`` to
   ``enabled``, or changing your docker configuration. Consult the docker documentation for details.
 * Your build host must support running ``qemu-<arch>-static``.
+* Your base images needs to already support multi-arch (and in particular, the architectures you want to support).
+  Many official images already do.
 
 Are there any downsides to this approach?
 -----------------------------------------
