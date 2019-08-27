@@ -4,6 +4,8 @@ import logging
 import re
 import tempfile
 from collections import namedtuple
+from datetime import datetime
+from threading import Thread
 
 from .image import Image
 
@@ -48,8 +50,14 @@ class Builder(object):
         self._secondary_init(docker, options, remaining_args)
         self._parse_dockerfile()
         self._check_for_problems()
+        threads = []
         for arch in self._archs:
-            self._build(arch)
+            t = Thread(target=self._build, name="Build-Thread-{}".format(arch), args=(arch,))
+            t.daemon = True
+            t.start()
+            threads.append(t)
+        for t in threads:
+            t.join()
 
     def _secondary_init(self, docker, options, remaining_args):
         self._docker = docker
@@ -110,7 +118,10 @@ class Builder(object):
         args.extend(("-f", dockerfile.name))
         args.extend(self._remaining)
         args.append(self._options.path)
+        start = datetime.now()
         self._docker.execute("build", *args)
+        time_spent = datetime.now() - start
+        LOG.info("Building %s took %s", arch, time_spent)
 
 
 class Renderable(object):
