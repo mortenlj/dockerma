@@ -40,7 +40,7 @@ class Builder(object):
         self._docker = None
         self._options = None
         self._remaining = []
-        self._base_images = {}
+        self._base_images = set()
         self._alias_lookup = {}
         self._archs = set()
         self._template = [BuildToolStage()]
@@ -67,15 +67,17 @@ class Builder(object):
             self._work_dir = tempfile.TemporaryDirectory(prefix="dockerma-")
 
     def _check_for_problems(self):
+        if not self._archs:
+            raise InvalidConfigurationError("No arch requested, did you forgot the dockerma directive?")
         if not self._archs.issubset(SUPPORTED_ARCHS.keys()):
             missing = self._archs - SUPPORTED_ARCHS.keys()
-            raise BuildError("dockerma does not support requested arch: {}".format(", ".join(missing)))
-        for image in self._base_images.keys():
+            raise UnsupportedArchError("dockerma does not support requested arch: {}".format(", ".join(missing)))
+        for image in self._base_images:
             if image.name in self._alias_lookup:
                 continue
             if not self._archs.issubset(image.get_supported_archs()):
                 missing = self._archs - image.get_supported_archs()
-                raise BuildError("{} does not support requested arch: {}".format(image, ", ".join(missing)))
+                raise UnsupportedBaseError("{} does not support requested arch: {}".format(image, ", ".join(missing)))
 
     def _parse_dockerfile(self):
         with open(self._options.file) as fobj:
@@ -83,7 +85,7 @@ class Builder(object):
                 try:
                     image = self._parse_from(line)
                     self._template.extend((FromMarker(image), CopyTools(), CrossBuild()))
-                    self._base_images[image] = {}
+                    self._base_images.add(image)
                     if image.alias:
                         self._alias_lookup[image.alias] = image
                     continue
@@ -165,4 +167,16 @@ class CrossBuild(Renderable):
 
 
 class BuildError(Exception):
+    pass
+
+
+class UnsupportedArchError(BuildError):
+    pass
+
+
+class UnsupportedBaseError(BuildError):
+    pass
+
+
+class InvalidConfigurationError(BuildError):
     pass

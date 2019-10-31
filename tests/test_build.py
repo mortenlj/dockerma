@@ -2,15 +2,24 @@
 # -*- coding: utf-8
 import argparse
 
+import mock
 import pytest
 
-from dockerma.build import _parse_archs, Builder
+from dockerma.build import _parse_archs, Builder, UnsupportedArchError, UnsupportedBaseError, InvalidConfigurationError
+from dockerma.image import Image
 
 
 class TestBuild(object):
     @pytest.fixture
     def parser(self):
         return argparse.ArgumentParser()
+
+    @pytest.fixture
+    def base_image(self):
+        mock_image = mock.create_autospec(Image(None, "name", "tag"), spec_set=True, instance=True)
+        mock_image.name = "name"
+        mock_image.get_supported_archs.return_value = {"amd64"}
+        return mock_image
 
     @pytest.mark.parametrize("line, archs", (
         ("# dockerma archs:x86:", ["x86"]),
@@ -36,3 +45,15 @@ class TestBuild(object):
         assert image.name == name
         assert image.tag == tag
         assert image.alias == alias
+
+    @pytest.mark.parametrize("archs, exc", (
+        (set(), InvalidConfigurationError),
+        ({"ppc"}, UnsupportedArchError),
+        ({"arm"}, UnsupportedBaseError)
+    ))
+    def test_check_for_problems(self, parser, archs, base_image, exc):
+        builder = Builder(parser)
+        builder._archs = archs
+        builder._base_images = {base_image}
+        with pytest.raises(exc):
+            builder._check_for_problems()
