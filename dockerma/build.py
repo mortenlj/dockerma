@@ -69,8 +69,9 @@ class Builder(object):
     def _check_for_problems(self):
         if not self._archs:
             raise InvalidConfigurationError("No arch requested, did you forgot the dockerma directive?")
-        if not self._archs.issubset(SUPPORTED_ARCHS.keys()):
-            missing = self._archs - SUPPORTED_ARCHS.keys()
+        supported = set(SUPPORTED_ARCHS.keys())
+        if not self._archs.issubset(supported):
+            missing = self._archs - supported
             raise UnsupportedArchError("dockerma does not support requested arch: {}".format(", ".join(missing)))
         for image in self._base_images:
             if image.name in self._alias_lookup:
