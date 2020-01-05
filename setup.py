@@ -24,6 +24,7 @@ ISSUE_NUMBER = re.compile(r"#(\d+)")
 
 
 def _generate_changelog():
+    # TODO: After the move to github, this code needs to be redone so it uses git instead of mercurial
     output = subprocess.check_output(["hg", "parent", "--template", "{latesttag}\t{latesttagdistance}"],
                                      universal_newlines=True)
     tag, distance = output.split("\t")
@@ -52,10 +53,10 @@ def _generate_changelog():
             node, desc = line.split("\t", 1)
             if desc.startswith("Close branch") or desc.startswith("Merged in"):
                 continue
-            links[node] = ".. _{node}: https://bitbucket.org/mortenlj/dockerma/commits/{node}".format(node=node)
+            links[node] = ".. _{node}: https://github.com/mortenlj/dockerma/commit/{node}".format(node=node)
             for match in ISSUE_NUMBER.finditer(desc):
                 issue_number = match.group(1)
-                links[issue_number] = ".. _#{num}: https://bitbucket.org/mortenlj/dockerma/issues/{num}".format(
+                links[issue_number] = ".. _#{num}: https://github.com/mortenlj/dockerma/issues/{num}".format(
                     num=issue_number)
             desc = ISSUE_NUMBER.sub(r"`#\1`_", desc)
             changelog.append("* `{node}`_: {desc}".format(node=node, desc=desc))
@@ -100,10 +101,10 @@ setup(
     description="DockerMA facilitates building multi-arch containers with minimal fuss",
     long_description=_generate_description(),
     license=_get_license_name(),
-    url="https://bitbucket.org/mortenlj/dockerma",
+    url="https://github.com/mortenlj/dockerma",
     project_urls={
-        "Source": "https://bitbucket.org/mortenlj/dockerma/src",
-        "Tracker": "https://bitbucket.org/mortenlj/dockerma/issues"
+        "Source": "https://github.com/mortenlj/dockerma/src",
+        "Tracker": "https://github.com/mortenlj/dockerma/issues"
     },
     keywords="docker",
     classifiers=[

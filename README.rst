@@ -62,6 +62,8 @@ Are there any downsides to this approach?
 Releasing a new version
 -----------------------
 
+TODO: This is the old way. After the move to github.com, the pipeline needs to be reimplemented using Github Actions
+
 1. Tag the new version: ``hg tag v1.2.3``
 2. Push the tag to Bitbucket
 3. Watch the pipeline publish the new version to PyPI
