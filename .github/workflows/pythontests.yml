@@ -2,6 +2,9 @@ name: Python test
 
 on: [push]
 
+env:
+  DOCKER_CLI_EXPERIMENTAL: enabled
+
 jobs:
   build:
 
