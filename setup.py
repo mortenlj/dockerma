@@ -1,6 +1,4 @@
 import os
-import re
-import subprocess
 
 from setuptools import setup, find_packages
 
@@ -18,55 +16,15 @@ TESTS_REQ = [
 
 CI_REQ = [
     'tox',
-    'twine',
+    'publish',
 ]
-ISSUE_NUMBER = re.compile(r"#(\d+)")
-
-
-def _generate_changelog():
-    # TODO: After the move to github, this code needs to be redone so it uses git instead of mercurial
-    output = subprocess.check_output(["hg", "parent", "--template", "{latesttag}\t{latesttagdistance}"],
-                                     universal_newlines=True)
-    tag, distance = output.split("\t")
-    limit = int(distance)
-    if limit > 1:
-        header = "Changes since {}".format(tag)
-        drop_index = limit-1
-    else:
-        header = "New changes in {}".format(tag)
-        output = subprocess.check_output(["hg", "parent", "--template", "{latesttag}\t{latesttagdistance}\n", "-r", tag],
-                                         universal_newlines=True)
-        longest_distance = 0
-        for line in output.splitlines():
-            previous_tag, previous_distance = line.split("\t")
-            previous_distance = int(previous_distance)
-            if previous_distance > longest_distance:
-                longest_distance = previous_distance
-        limit = int(distance) + int(longest_distance)
-        drop_index = 0
-    changelog = [header, "-" * (len(header)), ""]
-    links = {}
-    output = subprocess.check_output(["hg", "log", "-l", str(limit), "--template", "{node|short}\t{desc|firstline}\n"],
-                                     universal_newlines=True)
-    for idx, line in enumerate(output.splitlines()):
-        if idx != drop_index:
-            node, desc = line.split("\t", 1)
-            if desc.startswith("Close branch") or desc.startswith("Merged in"):
-                continue
-            links[node] = ".. _{node}: https://github.com/mortenlj/dockerma/commit/{node}".format(node=node)
-            for match in ISSUE_NUMBER.finditer(desc):
-                issue_number = match.group(1)
-                links[issue_number] = ".. _#{num}: https://github.com/mortenlj/dockerma/issues/{num}".format(
-                    num=issue_number)
-            desc = ISSUE_NUMBER.sub(r"`#\1`_", desc)
-            changelog.append("* `{node}`_: {desc}".format(node=node, desc=desc))
-    changelog.append("")
-    changelog.extend(links.values())
-    return "\n".join(changelog)
 
 
 def _generate_description():
-    description = [_read("README.rst"), _generate_changelog()]
+    description = [_read("README.rst")]
+    changelog_file = os.getenv("CHANGELOG_FILE")
+    if changelog_file:
+        description.append(_read(changelog_file))
     return "\n".join(description)
 
 
