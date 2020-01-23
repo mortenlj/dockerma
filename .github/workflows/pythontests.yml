@@ -1,4 +1,4 @@
-name: Python test
+name: Test, Build and Deploy
 
 on: [push]
 
@@ -34,12 +34,6 @@ jobs:
       - name: Build artifacts
         run: |
           python setup.py bdist_wheel sdist
-      - name: Save built artifacts
-        if: matrix.python-version == '2.7' || matrix.python-version == '3.7'
-        uses: actions/upload-artifact@v1
-        with:
-          name: dist
-          path: dist
       - name: Save coverage report
         uses: actions/upload-artifact@v1
         with:
@@ -60,4 +54,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install publish
       - name: Publish version
-        run: mortenlj dockerma --dry-run
+        run: mortenlj dockerma
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
