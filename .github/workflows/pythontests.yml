@@ -7,7 +7,6 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -32,3 +31,17 @@ jobs:
     - name: Test with tox
       run: |
         tox
+    - name: Build artifacts
+      run: |
+        python setup.py bdist_wheel sdist
+    - name: Save built artifacts
+      if: matrix.python-version == '2.7' || matrix.python-version == '3.7'
+      uses: actions/upload-artifact@v1
+      with:
+        name: dist
+        path: dist
+    - name: Save coverage report
+      uses: actions/upload-artifact@v1
+      with:
+        name: coverage-report
+        path: build/reports/coverage
