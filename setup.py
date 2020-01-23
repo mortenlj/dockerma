@@ -17,7 +17,6 @@ TESTS_REQ = [
 CI_REQ = [
     'tox',
     'tox-gh-actions',
-    'publish',
 ]
 
 
