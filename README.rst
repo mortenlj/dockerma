@@ -1,6 +1,13 @@
 DockerMA - Docker Multi Architecture
 ====================================
 
+.. admonition:: !NOTE!
+
+    DockerMA is retired, use Docker BuildX instead.
+
+-----
+
+
 DockerMA facilitates building multi-arch containers with minimal fuss.
 
 What does it do?
